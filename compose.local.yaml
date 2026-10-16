@@ -1,0 +1,32 @@
+# Run standalone: MEDIA_IP=<reachable-host-ipv4> docker compose -f compose.local.yaml up --build -d
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      livekit:
+        condition: service_started
+    environment:
+      PUBLIC_ORIGIN: http://localhost:8787
+      LIVEKIT_PUBLIC_URL: ws://localhost:7880
+      LIVEKIT_API_URL: http://livekit:7880
+      LIVEKIT_API_KEY: devkey
+      LIVEKIT_API_SECRET: devsecret-for-local-development-only
+    ports:
+      - "127.0.0.1:8787:8787"
+    volumes:
+      - broadcasts:/data
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    logging: &logging
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+  livekit:
+    extends:
+      file: compose.dev.yaml
+      service: livekit
+    restart: unless-stopped
+    logging: *logging
+volumes:
+  broadcasts:

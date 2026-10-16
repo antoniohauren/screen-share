@@ -1,4 +1,4 @@
-param([string]$Url = 'http://localhost:8787')
+param([string]$Url = 'https://share.detrouse.com')
 $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $PSScriptRoot
 $env:SCREEN_SHARE_URL = $Url

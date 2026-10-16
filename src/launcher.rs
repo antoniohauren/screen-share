@@ -1,10 +1,12 @@
+#![cfg_attr(windows, windows_subsystem = "windows")]
+
 fn main() -> std::io::Result<()> {
     let url = std::env::args()
         .nth(1)
         .or_else(|| std::env::var("SCREEN_SHARE_URL").ok())
         .unwrap_or_else(|| {
             option_env!("SCREEN_SHARE_URL")
-                .unwrap_or("http://localhost:8787")
+                .unwrap_or("https://share.detrouse.com")
                 .into()
         });
     if !url.starts_with("https://") && !url.starts_with("http://localhost:") {

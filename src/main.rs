@@ -4,7 +4,7 @@ use axum::{
         Path, State, WebSocketUpgrade,
         ws::{Message, WebSocket},
     },
-    http::{HeaderMap, StatusCode},
+    http::{HeaderMap, StatusCode, header},
     response::{Html, IntoResponse},
     routing::{get, post},
 };
@@ -393,6 +393,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 (
                     [("content-type", "text/css")],
                     include_str!("../web/style.css"),
+                )
+            }),
+        )
+        .route(
+            "/icon.svg",
+            get(|| async {
+                (
+                    [(header::CONTENT_TYPE, "image/svg+xml")],
+                    include_str!("../web/icon.svg"),
+                )
+            }),
+        )
+        .route(
+            "/favicon.ico",
+            get(|| async {
+                (
+                    [(header::CONTENT_TYPE, "image/x-icon")],
+                    include_bytes!("../web/icon.ico").as_slice(),
                 )
             }),
         )

@@ -8,7 +8,7 @@ Do not claim the 500 ms target for distant regions, congested uplinks, or TCP/TU
 
 ## Configure
 
-Install Docker Engine and Compose. Point `share.example.com` and `media.example.com` DNS A records at the instance. Do not place an HTTP-only CDN/proxy in the media transport path.
+Install Docker Engine and Compose. Point `share.detrouse.com` and `media.detrouse.com` DNS A records at the instance. Do not place an HTTP-only CDN/proxy in the media transport path.
 
 ```sh
 cp .env.example .env
@@ -38,7 +38,7 @@ docker compose up -d --build
 docker compose logs -f app livekit caddy
 ```
 
-Open `https://share.example.com`. Caddy automatically obtains certificates for the page and signaling domains. Caddy exposes only LiveKit `/rtc` signaling routes, not RoomService RPC. Public origin checking requires the exact configured HTTPS app origin.
+Open `https://share.detrouse.com`. Caddy automatically obtains certificates for the page and signaling domains. Caddy exposes only LiveKit `/rtc` signaling routes, not RoomService RPC. Public origin checking requires the exact configured HTTPS app origin.
 
 The named `broadcasts` volume stores SQLite metadata/ownership and stopped-generation cleanup records. Back it up using SQLite's online backup API or while the app is stopped (include WAL if copying a running database). Keep `.env` secrets and the owner's browser profile. Never run `docker compose down -v` if you need to retain broadcasts. SFU restart can interrupt media but must not mark a broadcast ended. The server does not save media.
 

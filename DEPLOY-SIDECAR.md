@@ -24,7 +24,7 @@ cp livekit.example.yaml livekit.yaml
 openssl rand -hex 32
 ```
 
-Edit `.env.sidecar`: set two new hostnames, the existing Caddy network name,
+Edit `.env.sidecar`: keep `share.detrouse.com` for the app and `media.detrouse.com` for signaling, set the existing Caddy network name,
 and the generated API secret. Set the same key and secret in `livekit.yaml`.
 Leave its optional TURN section disabled so it does not compete with coturn.
 Point both new DNS A records at the EC2 public IP.
@@ -39,19 +39,23 @@ joins the existing proxy network under the unique alias `screen-share-app`.
 ## Add routes to the existing Caddy
 
 Append these blocks to the **existing** Caddyfile, keeping its current routes.
-Replace the hostnames with your new domains. Replace `172.31.33.80` if your
+The hostnames match `.env.sidecar.example`. Replace `172.31.33.80` if your
 EC2 private IP differs.
 
 ```caddyfile
-share.example.com {
+share.detrouse.com {
     encode zstd gzip
     reverse_proxy screen-share-app:8787
 }
 
-media.example.com {
+media.detrouse.com {
     @rtc path /rtc /rtc/*
-    reverse_proxy @rtc 172.31.33.80:7880
-    respond 404
+    handle @rtc {
+        reverse_proxy 172.31.33.80:7880
+    }
+    handle {
+        respond 404
+    }
 }
 ```
 
@@ -61,6 +65,11 @@ Validate and gracefully reload the existing Caddy container:
 docker exec <existing-caddy-container> caddy validate --config /etc/caddy/Caddyfile
 docker exec <existing-caddy-container> caddy reload --config /etc/caddy/Caddyfile
 ```
+
+Keep the proxy and fallback in separate `handle` blocks: Caddy orders a bare
+`respond` before `reverse_proxy`, so a bare `respond 404` would block signaling.
+After reloading, `curl -i https://media.detrouse.com/rtc/validate` without a token
+should return a LiveKit authentication error, not an empty Caddy 404.
 
 ## Firewall
 

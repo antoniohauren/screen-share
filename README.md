@@ -2,6 +2,24 @@
 
 Rust/Axum + LiveKit screen broadcasting, with a small Windows Edge/Chrome app-mode launcher. One browser publishes screen video and optional **selected-source audio** to the SFU; up to ten viewers watch a public URL. No microphone capture, accounts, chat, recording, or peer-to-peer viewer connections.
 
+## Run locally with Docker Compose
+
+With Docker Compose installed, run the app and LiveKit together:
+
+```sh
+MEDIA_IP=YOUR_DOCKER_HOST_IPV4 docker compose -f compose.local.yaml up --build -d
+```
+
+Open **http://localhost:8787**. Set `MEDIA_IP` to the Docker host's real interface IPv4 reachable by your browser (for Docker Desktop, the Windows host IPv4). Media uses TCP 7881 and UDP 7882; signaling uses TCP 7880. This local setup uses development credentials and localhost browser URLs.
+
+Broadcast metadata persists in a Docker volume across restarts. To stop:
+
+```sh
+docker compose -f compose.local.yaml down
+```
+
+Set `MEDIA_IP` for Compose commands, including `down`, or put it in a local `.env` file. For public HTTPS deployment, use `compose.yaml` and [DEPLOY-AWS.md](DEPLOY-AWS.md); for an existing reverse proxy, see [DEPLOY-SIDECAR.md](DEPLOY-SIDECAR.md).
+
 ## Windows test from WSL
 
 Requirements: Rust stable, Node 22+, and LiveKit Server 1.13.10 (or Docker Desktop with WSL integration).
@@ -49,11 +67,13 @@ Localhost is a browser secure context. A public/LAN-IP HTTP URL is not suitable 
 In Windows PowerShell, with Rust and Visual Studio C++ build tools installed:
 
 ```powershell
-.\build.ps1 -Url https://share.example.com
+.\build.ps1
 .\dist\ScreenShare.exe
 ```
 
-For local testing omit `-Url`. The launcher has no server/media dependencies: `--no-default-features` builds only the standard-library browser opener. It searches the same Edge/Chrome install locations as Streamroom. You can also pass a URL as its first argument or set `SCREEN_SHARE_URL` at runtime. The roughly 3 MB budget must be checked on the Windows release build; it is not bundled with LiveKit or a webview.
+The launcher defaults to `https://share.detrouse.com`; `media.detrouse.com` is the LiveKit signaling endpoint. For local testing use `-Url http://localhost:8787`. The launcher opens Edge/Chrome in app mode without a console window and embeds the share icon. It has no server/media runtime dependencies. You can also pass a URL as its first argument or set `SCREEN_SHARE_URL` at runtime. The roughly 3 MB budget must be checked on the Windows release build; it is not bundled with LiveKit or a webview.
+
+The icon source is `web/icon.svg`. To regenerate `web/icon.ico` after editing it, run `npm ci` then `node scripts/build-icon.mjs` before rebuilding the launcher.
 
 ## Behavior and ownership
 
