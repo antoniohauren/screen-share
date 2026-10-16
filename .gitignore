@@ -1,0 +1,10 @@
+/target/
+/node_modules/
+/web/dist/
+/dist/
+/data/
+.env
+livekit.yaml
+*.db*
+/test-results/
+/playwright-report/

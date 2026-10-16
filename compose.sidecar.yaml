@@ -1,0 +1,40 @@
+# Run as a separate project, not as an override of compose.yaml.
+name: screen-share
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      PUBLIC_ORIGIN: https://${DOMAIN:?Set DOMAIN}
+      LIVEKIT_PUBLIC_URL: wss://${MEDIA_DOMAIN:?Set MEDIA_DOMAIN}
+      LIVEKIT_API_URL: http://host.docker.internal:7880
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:?Set LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:?Set LIVEKIT_API_SECRET}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      proxy:
+        aliases:
+          - screen-share-app
+    volumes:
+      - broadcasts:/data
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    logging: &logging
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+  livekit:
+    image: livekit/livekit-server:v1.13.10
+    command: --config /etc/livekit.yaml
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    logging: *logging
+networks:
+  proxy:
+    external: true
+    name: ${EXISTING_PROXY_NETWORK:?Set EXISTING_PROXY_NETWORK to your existing Caddy network}
+volumes:
+  broadcasts:

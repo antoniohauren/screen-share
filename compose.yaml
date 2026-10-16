@@ -1,0 +1,49 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      PUBLIC_ORIGIN: https://${DOMAIN:?Set DOMAIN}
+      LIVEKIT_PUBLIC_URL: wss://${MEDIA_DOMAIN:?Set MEDIA_DOMAIN}
+      LIVEKIT_API_URL: http://host.docker.internal:7880
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:?Set LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:?Set LIVEKIT_API_SECRET}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - broadcasts:/data
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    logging: &logging
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+  livekit:
+    image: livekit/livekit-server:v1.13.10
+    command: --config /etc/livekit.yaml
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    logging: *logging
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      app: {condition: service_healthy}
+    environment:
+      DOMAIN: ${DOMAIN}
+      MEDIA_DOMAIN: ${MEDIA_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging: *logging
+volumes:
+  broadcasts:
+  caddy_data:
+  caddy_config:

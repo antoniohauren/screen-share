@@ -1,0 +1,19 @@
+{
+  "name": "screen-share-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild web/app.js --bundle --minify --format=esm --outfile=web/dist/app.js",
+    "test": "node --test tests/*.test.js",
+    "test:server": "node --test tests/integration/*.test.js",
+    "test:browser": "playwright test"
+  },
+  "dependencies": {
+    "livekit-client": "2.15.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "esbuild": "0.25.12",
+    "ws": "8.21.0"
+  }
+}

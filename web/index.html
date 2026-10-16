@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Screen Share</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <main>
+    <div class="theater"><video id="video" autoplay playsinline muted></video></div>
+    <footer>
+      <button id="toggle" hidden>Play</button>
+      <button id="listen" hidden>Play / enable audio</button>
+      <p id="status" role="status" aria-live="polite">Connecting…</p>
+      <div id="share" hidden><input id="url" aria-label="Public watch URL" readonly><button id="copy">Copy link</button></div>
+    </footer>
+  </main>
+</body>
+</html>

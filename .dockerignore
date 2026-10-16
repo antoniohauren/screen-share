@@ -1,0 +1,7 @@
+target
+node_modules
+.env
+data
+dist
+livekit.yaml
+*.db*

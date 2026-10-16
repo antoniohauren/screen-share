@@ -1,0 +1,13 @@
+{
+    email {$ACME_EMAIL}
+}
+{$DOMAIN} {
+    encode zstd gzip
+    reverse_proxy app:8787
+}
+{$MEDIA_DOMAIN} {
+    # Only browser signaling endpoints are public; RoomService stays internal.
+    @rtc path /rtc /rtc/*
+    reverse_proxy @rtc host.docker.internal:7880
+    respond 404
+}
